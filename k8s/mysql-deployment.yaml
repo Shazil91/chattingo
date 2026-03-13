@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chattingo-mysql
+  namespace: chattingo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: chattingo-mysql
+  template:
+    metadata:
+      labels:
+        app: chattingo-mysql
+    spec:
+      containers:
+      - name: mysql
+        image: mysql:8
+        ports:
+          - containerPort: 3306
+        env:
+          - name: MYSQL_ROOT_PASSWORD
+            value: rootpassword
+          - name: MYSQL_DATABASE
+            value: chattingo_db
+          - name: MYSQL_USER
+            value: admin
+          - name: MYSQL_PASSWORD
+            value: adminpassword
+        volumeMounts:
+          - mountPath: /var/lib/mysql
+            name: mysql-storage
+      volumes:
+        - name: mysql-storage
+          persistentVolumeClaim:
+            claimName: mysql-pvc

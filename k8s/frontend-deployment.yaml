@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chattingo-frontend
+  namespace: chattingo
+  labels:
+    app: chattingo-frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: chattingo-frontend
+  template:
+    metadata:
+      labels:
+        app: chattingo-frontend
+    spec:
+      containers:
+        - name: chattingo-frontend
+          image: shazil91ali/chattingo-frontend:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+          env:
+            - name: BACKEND_URL
+              value: "http://chattingo-backend:8080" # matches your backend service name
+
