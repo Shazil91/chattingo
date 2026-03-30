@@ -1,4 +1,4 @@
-name: Chattingo Deployment
+name: Chattingo Deploy
 
 on:
   push:
@@ -10,11 +10,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checkout code
-      - name: Checkout code
+      # Checkout code
+      - name: Checkout
         uses: actions/checkout@v3
 
-      # 2. Configure AWS credentials
+      # Configure AWS
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -22,7 +22,26 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-2
 
-      # 3. Deploy to S3
+      # Deploy frontend to S3
+      - name: Upload frontend
+        run: |
+          aws s3 sync ./frontend s3://shazil-bucket --delete
+
+           # 🚀 Deploy backend to EC2
+      - name: Deploy Backend to EC2
+        run: |
+          # Setup SSH
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+
+          # Connect to EC2 and deploy
+          ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
+            cd chattingo/chattingo
+            git pull origin main
+            docker-compose down
+            docker-compose up -d --build
+          EOF    
       - name: Upload to S3
         run: |
           aws s3 sync ./frontend s3://shazil-bucket --delete
