@@ -1,4 +1,4 @@
- name: Chattingo Deployment
+name: Chattingo Deployment
 
  on:
    push:
